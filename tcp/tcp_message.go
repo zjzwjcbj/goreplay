@@ -210,8 +210,8 @@ type HintStart func(*Packet) (IsRequest, IsOutgoing bool)
 // MessageParser holds data of all tcp messages in progress(still receiving/sending packets).
 // message is identified by its source port and dst port, and last 4bytes of src IP.
 type MessageParser struct {
-	m  []map[uint64]*Message
-	mL []sync.RWMutex
+	m  []map[uint64]*Message //map 数组
+	mL []sync.RWMutex        //保护并发map
 
 	messageExpire  time.Duration // the maximum time to wait for the final packet, minimum is 100ms
 	allowIncompete bool
@@ -323,7 +323,7 @@ func (parser *MessageParser) processPacket(pckt *Packet) {
 	mIDX := pckt.SrcPort % 10
 
 	parser.mL[mIDX].Lock()
-	m, ok := parser.m[mIDX][mID]
+	m, ok := parser.m[mIDX][mID] //message未初始化
 	if !ok {
 		parser.mL[mIDX].Unlock()
 

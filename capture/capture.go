@@ -152,7 +152,7 @@ func NewListener(host string, ports []uint16, transport string, engine EngineTyp
 	switch engine {
 	default:
 		l.Engine = EnginePcap
-		l.Activate = l.activatePcap
+		l.Activate = l.activatePcap //此处仅为方法赋值
 	case EngineRawSocket:
 		l.Engine = EngineRawSocket
 		l.Activate = l.activateRawSocket
@@ -208,7 +208,7 @@ func (l *Listener) ListenBackground(ctx context.Context) chan error {
 
 // Filter returns automatic filter applied by goreplay
 // to a pcap handle of a specific interface
-func (l *Listener) Filter(ifi pcap.Interface) (filter string) {
+func (l *Listener) Filter(ifi pcap.Interface) (filter string) { //指定接口的pcap handle
 	// https://www.tcpdump.org/manpages/pcap-filter.7.html
 
 	hosts := []string{l.host}
@@ -248,11 +248,11 @@ func (l *Listener) PcapHandle(ifi pcap.Interface) (handle *pcap.Handle, err erro
 		return nil, fmt.Errorf("inactive handle error: %q, interface: %q", err, ifi.Name)
 	}
 	defer inactive.CleanUp()
-
+	//设置时间戳
 	if l.TimestampType != "" && l.TimestampType != "go" {
 		var ts pcap.TimestampSource
 		ts, err = pcap.TimestampSourceFromString(l.TimestampType)
-		fmt.Println("Setting custom Timestamp Source. Supported values: `go`, ", inactive.SupportedTimestamps())
+		fmt.Println("Setting custom Timestamp Source. Supported values: `go`, ", inactive.SupportedTimestamps()) //支持的时间戳
 		err = inactive.SetTimestampSource(ts)
 		if err != nil {
 			return nil, fmt.Errorf("%q: supported timestamps: %q, interface: %q", err, inactive.SupportedTimestamps(), ifi.Name)
@@ -284,7 +284,7 @@ func (l *Listener) PcapHandle(ifi pcap.Interface) (handle *pcap.Handle, err erro
 		snap = 64<<10 + 200
 	}
 
-	err = inactive.SetSnapLen(snap)
+	err = inactive.SetSnapLen(snap) //设置最大捕获包的长度
 	if err != nil {
 		return nil, fmt.Errorf("snapshot length error: %q, interface: %q", err, ifi.Name)
 	}
@@ -301,7 +301,7 @@ func (l *Listener) PcapHandle(ifi pcap.Interface) (handle *pcap.Handle, err erro
 	if err != nil {
 		return nil, fmt.Errorf("handle buffer timeout error: %q, interface: %q", err, ifi.Name)
 	}
-	handle, err = inactive.Activate()
+	handle, err = inactive.Activate() //激活handle
 	if err != nil {
 		return nil, fmt.Errorf("PCAP Activate device error: %q, interface: %q", err, ifi.Name)
 	}
@@ -357,7 +357,7 @@ func http1EndHint(m *tcp.Message) bool {
 	if m.MissingChunk() {
 		return false
 	}
-	
+
 	req, res := http1StartHint(m.Packets()[0])
 	return proto.HasFullPayload(m, m.PacketData()...) && (req || res)
 }
@@ -371,7 +371,7 @@ func (l *Listener) read() {
 
 			defer l.closeHandles(key)
 			linkSize := 14
-			linkType := int(layers.LinkTypeEthernet)
+			linkType := int(layers.LinkTypeEthernet) //链路层标头类型   以太网
 			if _, ok := hndl.handler.(*pcap.Handle); ok {
 				linkType = int(hndl.handler.(*pcap.Handle).LinkType())
 				linkSize, ok = pcapLinkTypeLength(linkType)
@@ -568,7 +568,7 @@ func (l *Listener) activateAFPacket() error {
 
 func (l *Listener) setInterfaces() (err error) {
 	var pifis []pcap.Interface
-	pifis, err = pcap.FindAllDevs()
+	pifis, err = pcap.FindAllDevs() //获取所有网络接口
 	ifis, _ := net.Interfaces()
 	if err != nil {
 		return

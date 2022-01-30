@@ -67,12 +67,12 @@ func loggingMiddleware(addr string, next http.Handler) http.Handler {
 
 func main() {
 	if os.Getenv("GOMAXPROCS") == "" {
-		runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+		runtime.GOMAXPROCS(runtime.NumCPU() * 2) //设置当前进程使用的最大cpu数、设置并行计算CPU核数的最大值
 	}
 
 	args := os.Args[1:]
 	var plugins *InOutPlugins
-	if len(args) > 0 && args[0] == "file-server" {
+	if len(args) > 0 && args[0] == "file-server" { //文件服务器
 		if len(args) != 2 {
 			log.Fatal("You should specify port and IP (optional) for the file server. Example: `gor file-server :80`")
 		}

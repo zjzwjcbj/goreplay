@@ -24,7 +24,7 @@ const testRawExpire = time.Millisecond * 200
 func TestRAWInputIPv4(t *testing.T) {
 	wg := new(sync.WaitGroup)
 
-	listener, err := net.Listen("tcp4", "127.0.0.1:0")
+	listener, err := net.Listen("tcp4", "127.0.0.1:8080")
 	if err != nil {
 		t.Error(err)
 		return

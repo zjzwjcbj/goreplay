@@ -107,7 +107,7 @@ func (pckt *Packet) parse(data []byte, lType, lTypeLen int, cp *gopacket.Capture
 		return ErrHdrMissing("IPv4 or IPv6")
 	}
 
-	ldata := data[lTypeLen:]
+	ldata := data[lTypeLen:] //除以太网帧头
 	var proto byte
 	var netLayer, transLayer []byte
 
@@ -124,7 +124,7 @@ func (pckt *Packet) parse(data []byte, lType, lTypeLen int, cp *gopacket.Capture
 		if len(ldata) < ihl {
 			return ErrHdrLength("IPv4 opts")
 		}
-		netLayer = ldata[:ihl]
+		netLayer = ldata[:ihl] //ip头
 	} else if ldata[0]>>4 == 6 {
 		if len(ldata) < 40 {
 			return ErrHdrLength("IPv6")
@@ -156,12 +156,12 @@ func (pckt *Packet) parse(data []byte, lType, lTypeLen int, cp *gopacket.Capture
 	if len(data) <= len(netLayer) {
 		return ErrHdrMissing("TCP")
 	}
-	ndata := ldata[len(netLayer):]
+	ndata := ldata[len(netLayer):] //除ip头
 	// TCP header
 	if len(ndata) < 20 {
 		return ErrHdrLength("TCP")
 	}
-	dOf := int(ndata[12]>>4) * 4
+	dOf := int(ndata[12]>>4) * 4 //tcp头分界线
 	if dOf < 20 {
 		return ErrHdrInvalid("TCP's ndata offset")
 	}
@@ -194,7 +194,7 @@ func (pckt *Packet) parse(data []byte, lType, lTypeLen int, cp *gopacket.Capture
 		pckt.DstIP = netLayer[24:40]
 	}
 
-	transLayer = ndata[:dOf]
+	transLayer = ndata[:dOf] //tcp头部
 
 	pckt.CaptureLength = cp.CaptureLength
 	pckt.SrcPort = binary.BigEndian.Uint16(transLayer[0:2])
@@ -207,7 +207,10 @@ func (pckt *Packet) parse(data []byte, lType, lTypeLen int, cp *gopacket.Capture
 	pckt.ACK = transLayer[13]&0x10 != 0
 	pckt.Lost = uint32(cp.Length - cp.CaptureLength)
 
-	pckt.Payload = ndata[dOf:]
+	pckt.Payload = ndata[dOf:] //应用数据
+
+	fmt.Println("数据包：")
+	fmt.Printf("Ack：%d，Seq：%d,Payload长度:%d\n", pckt.Ack, pckt.Seq, len(pckt.Payload))
 
 	return nil
 }

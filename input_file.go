@@ -34,6 +34,7 @@ type payloadQueue struct {
 	s []*filePayload
 }
 
+//heap.push加入最小堆排序  less
 func (h payloadQueue) Len() int           { return len(h.s) }
 func (h payloadQueue) Less(i, j int) bool { return h.s[i].timestamp < h.s[j].timestamp }
 func (h payloadQueue) Swap(i, j int)      { h.s[i], h.s[j] = h.s[j], h.s[i] }
@@ -92,7 +93,7 @@ func (f *fileInputReader) parse(init chan struct{}) error {
 
 			return err
 		}
-
+		//读到猴子表情才从buffer添加到queue,调整最小堆
 		if bytes.Equal(payloadSeparatorAsBytes[1:], line) {
 			asBytes := buffer.Bytes()
 			meta := payloadMeta(asBytes)

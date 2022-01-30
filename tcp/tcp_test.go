@@ -3,6 +3,8 @@ package tcp
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+	"os"
 
 	// "runtime"
 	"testing"
@@ -109,6 +111,7 @@ func TestRequestResponseMapping(t *testing.T) {
 }
 
 func TestMessageParserWithHint(t *testing.T) {
+	fmt.Fprintln(os.Stderr, "tttttttt")
 	parser := NewMessageParser(nil, nil, nil, time.Second, false)
 	parser.Start = func(pckt *Packet) (bool, bool) {
 		return proto.HasRequestTitle(pckt.Payload), proto.HasResponseTitle(pckt.Payload)

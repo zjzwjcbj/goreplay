@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 package capture
@@ -20,7 +21,7 @@ const (
 	// ETHALL htons(ETH_P_ALL)
 	ETHALL uint16 = unix.ETH_P_ALL<<8 | unix.ETH_P_ALL>>8
 	// BLOCKSIZE ring buffer block_size
-	BLOCKSIZE = 64 << 10
+	BLOCKSIZE = 64 << 10 //65536
 	// BLOCKNR ring buffer block_nr
 	BLOCKNR = (2 << 20) / BLOCKSIZE // 2mb / 64kb
 	// FRAMESIZE ring buffer frame_size
